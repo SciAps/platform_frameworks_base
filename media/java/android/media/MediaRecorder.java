@@ -27,6 +27,8 @@ import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import android.os.SystemProperties;
+
 
 /**
  * Used to record audio and video. The recording control is based on a
@@ -341,6 +343,21 @@ public class MediaRecorder
             setAudioChannels(profile.audioChannels);
             setAudioSamplingRate(profile.audioSampleRate);
             setAudioEncoder(profile.audioCodec);
+        }
+
+        if(SystemProperties.OMAP_ENHANCEMENT) {
+            // Set Encoder Profile  from system properties for H264 Encoder
+            if(profile.videoCodec == MediaRecorder.VideoEncoder.H264){
+                String encProfile;
+                encProfile = SystemProperties.get("video.h264enc.profile");
+                if(encProfile.equals("1") ||encProfile.equals("2") || encProfile.equals("8")) {
+                    Log.v(TAG,"Profile read is : " + encProfile);
+                }else{
+                    Log.v(TAG," Profile is not set or is Invalid .. So setting Baseline as Default");
+                    encProfile = "1";
+                }
+                setParameter(String.format("video-param-encoder-profile="+encProfile));
+            }
         }
     }
 
