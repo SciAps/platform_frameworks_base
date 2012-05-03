@@ -205,6 +205,11 @@ public class Am {
             } else if (opt.equals("--esn")) {
                 String key = nextArgRequired();
                 intent.putExtra(key, (String) null);
+            } else if (SystemProperties.OMAP_ENHANCEMENT && opt.equals("--ent")) {
+                String key = nextArgRequired();
+                String act = nextArgRequired();
+                String value = nextArgRequired();
+                intent.putExtra(key, new Intent(act, Uri.parse(value)));
             } else if (opt.equals("--ei")) {
                 String key = nextArgRequired();
                 String value = nextArgRequired();
@@ -1554,7 +1559,12 @@ public class Am {
                 "    [--ecn <EXTRA_KEY> <EXTRA_COMPONENT_NAME_VALUE>]\n" +
                 "    [--eia <EXTRA_KEY> <EXTRA_INT_VALUE>[,<EXTRA_INT_VALUE...]]\n" +
                 "    [--ela <EXTRA_KEY> <EXTRA_LONG_VALUE>[,<EXTRA_LONG_VALUE...]]\n" +
-                "    [--efa <EXTRA_KEY> <EXTRA_FLOAT_VALUE>[,<EXTRA_FLOAT_VALUE...]]\n" +
+                "    [--efa <EXTRA_KEY> <EXTRA_FLOAT_VALUE>[,<EXTRA_FLOAT_VALUE...]]\n"
+                );
+        if (SystemProperties.OMAP_ENHANCEMENT) {
+            System.err.println("    [--ent <EXTRA_KEY> <EXTRA_SUBINTENT_ACTION> <SUBINTENT_URI_DATA>]\n");
+        }
+        System.err.println(
                 "    [-n <COMPONENT>] [-f <FLAGS>]\n" +
                 "    [--grant-read-uri-permission] [--grant-write-uri-permission]\n" +
                 "    [--debug-log-resolution] [--exclude-stopped-packages]\n" +
