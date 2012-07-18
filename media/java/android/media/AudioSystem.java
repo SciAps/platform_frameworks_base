@@ -219,6 +219,7 @@ public class AudioSystem
     public static final int DEVICE_OUT_USB_ACCESSORY = 0x2000;
     public static final int DEVICE_OUT_USB_DEVICE = 0x4000;
     public static final int DEVICE_OUT_REMOTE_SUBMIX = 0x8000;
+    public static final int DEVICE_OUT_FM_RADIO_TX = 0x20000000;
 
     public static final int DEVICE_OUT_DEFAULT = DEVICE_BIT_DEFAULT;
 
@@ -238,6 +239,7 @@ public class AudioSystem
                                               DEVICE_OUT_USB_ACCESSORY |
                                               DEVICE_OUT_USB_DEVICE |
                                               DEVICE_OUT_REMOTE_SUBMIX |
+                                              DEVICE_OUT_FM_RADIO_TX |
                                               DEVICE_OUT_DEFAULT);
     public static final int DEVICE_OUT_ALL_A2DP = (DEVICE_OUT_BLUETOOTH_A2DP |
                                                    DEVICE_OUT_BLUETOOTH_A2DP_HEADPHONES |
