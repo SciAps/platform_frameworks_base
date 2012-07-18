@@ -262,6 +262,7 @@ public class AudioSystem
     public static final int DEVICE_IN_DGTL_DOCK_HEADSET = DEVICE_BIT_IN | 0x400;
     public static final int DEVICE_IN_USB_ACCESSORY = DEVICE_BIT_IN | 0x800;
     public static final int DEVICE_IN_USB_DEVICE = DEVICE_BIT_IN | 0x1000;
+    public static final int DEVICE_IN_FM_RADIO_RX = DEVICE_BIT_IN | 0x2000000;
     public static final int DEVICE_IN_DEFAULT = DEVICE_BIT_IN | DEVICE_BIT_DEFAULT;
 
     public static final int DEVICE_IN_ALL = (DEVICE_IN_COMMUNICATION |
@@ -277,6 +278,7 @@ public class AudioSystem
                                              DEVICE_IN_DGTL_DOCK_HEADSET |
                                              DEVICE_IN_USB_ACCESSORY |
                                              DEVICE_IN_USB_DEVICE |
+                                             DEVICE_IN_FM_RADIO_RX |
                                              DEVICE_IN_DEFAULT);
     public static final int DEVICE_IN_ALL_SCO = DEVICE_IN_BLUETOOTH_SCO_HEADSET;
 
