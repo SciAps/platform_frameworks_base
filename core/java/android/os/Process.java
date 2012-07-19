@@ -122,6 +122,12 @@ public class Process {
     public static final int BLUETOOTH_UID = 1002;
 
     /**
+     * Defines the UID/GID for the FM Radio service process.
+     * @hide
+     */
+    public static final int FMRADIO_UID = 1029;
+
+    /**
      * Defines the GID for the group that allows write access to the internal media storage.
      * @hide
      */
