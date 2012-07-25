@@ -1847,6 +1847,9 @@ public class WifiP2pService extends IWifiP2pManager.Stub {
 
     private void stopDhcpServer(String intf) {
         try {
+            if (SystemProperties.OMAP_ENHANCEMENT) {
+                mNwService.clearInterfaceAddresses(mInterface);
+            }
             mNwService.stopTethering();
         } catch (Exception e) {
             loge("Error stopping Dhcp server" + e);
