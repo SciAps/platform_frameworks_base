@@ -568,7 +568,14 @@ class ServerThread extends Thread {
             } catch (Throwable e) {
                 reportWtf("starting DeviceStorageMonitor service", e);
             }
-
+            if(SystemProperties.OMAP_ENHANCEMENT) {
+            try {
+                Slog.i(TAG, "starting SUPL Service (SystemServer)");
+                ServiceManager.addService("SUPL_SERVICE",SUPLService.getInstance(context));
+            } catch (Throwable e) {
+                Slog.e(TAG,"Failure installing SUPL Service", e);
+            }
+            }
             try {
                 Slog.i(TAG, "Location Manager");
                 location = new LocationManagerService(context);
