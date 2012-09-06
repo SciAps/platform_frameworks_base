@@ -25,6 +25,7 @@ import android.content.ContentService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.IPackageManager;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.media.AudioService;
 import android.net.wifi.p2p.WifiP2pService;
@@ -152,6 +153,7 @@ class ServerThread extends Thread {
         CommonTimeManagementService commonTimeMgmtService = null;
         InputManagerService inputManager = null;
         TelephonyRegistry telephonyRegistry = null;
+        TIEthernetService ethernet = null;
 
         // Create a shared handler thread for UI within the system server.
         // This thread is used by at least the following components:
@@ -488,6 +490,20 @@ class ServerThread extends Thread {
                 ServiceManager.addService(Context.WIFI_SERVICE, wifi);
             } catch (Throwable e) {
                 reportWtf("starting Wi-Fi Service", e);
+            }
+
+            if (SystemProperties.OMAP_ENHANCEMENT) {
+                try {
+                    if (pm.hasSystemFeature(PackageManager.FEATURE_ETHERNET)) {
+                        Slog.i(TAG, "TIEthernet Service");
+                        ethernet = new TIEthernetService(context);
+                        ServiceManager.addService(Context.ETHERNET_SERVICE, ethernet);
+                    } else {
+                        Slog.i(TAG, "TIEthernet Service not started because " + PackageManager.FEATURE_ETHERNET + " feature is absent");
+                    }
+                } catch (Throwable e) {
+                    reportWtf("starting TIEthernet Service", e);
+                }
             }
 
             try {

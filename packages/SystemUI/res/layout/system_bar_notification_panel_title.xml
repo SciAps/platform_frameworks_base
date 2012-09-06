@@ -153,6 +153,22 @@
                 android:text="@string/status_bar_settings_settings_button"
                 />
 
+            <FrameLayout
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_gravity="center_vertical"
+                >
+                <ImageView
+                    android:id="@+id/ethernet_icon"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:paddingRight="16dp"
+                    android:visibility="gone"
+                    android:contentDescription="@null"
+                    android:layout_gravity="center_vertical"
+                    />
+            </FrameLayout>
+
             <!-- this will stretch to eat up available space -->
             <View
                 android:layout_width="0dp"

@@ -19,6 +19,8 @@ package android.app;
 import com.android.internal.policy.PolicyManager;
 import com.android.internal.util.Preconditions;
 
+import android.accounts.AccountManager;
+import android.accounts.IAccountManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -62,6 +64,10 @@ import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.MediaRouter;
 import android.net.ConnectivityManager;
+import android.net.eth.EthernetConfiguration;
+import android.net.eth.EthernetConfiguration.IPAssignment;
+import android.net.eth.ITIEthernetManager;
+import android.net.eth.TIEthernetManager;
 import android.net.IConnectivityManager;
 import android.net.INetworkPolicyManager;
 import android.net.NetworkPolicyManager;
@@ -91,6 +97,7 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.UserHandle;
+import android.os.SystemProperties;
 import android.os.SystemVibrator;
 import android.os.UserManager;
 import android.os.storage.StorageManager;
@@ -104,12 +111,13 @@ import android.view.ContextThemeWrapper;
 import android.view.Display;
 import android.view.WindowManagerImpl;
 import android.view.accessibility.AccessibilityManager;
+import android.view.ContextThemeWrapper;
 import android.view.inputmethod.InputMethodManager;
 import android.view.textservice.TextServicesManager;
-import android.accounts.AccountManager;
-import android.accounts.IAccountManager;
+import android.view.WindowManagerImpl;
 import android.app.admin.DevicePolicyManager;
 import com.android.internal.os.IDropBoxManagerService;
+import com.android.internal.policy.PolicyManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -117,6 +125,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -517,6 +526,15 @@ class ContextImpl extends Context {
                     IWifiP2pManager service = IWifiP2pManager.Stub.asInterface(b);
                     return new WifiP2pManager(service);
                 }});
+
+        if (SystemProperties.OMAP_ENHANCEMENT) {
+            registerService(ETHERNET_SERVICE, new ServiceFetcher() {
+                    public Object createService(ContextImpl ctx) {
+                        IBinder bind = ServiceManager.getService(ETHERNET_SERVICE);
+                        ITIEthernetManager service = ITIEthernetManager.Stub.asInterface(bind);
+                        return new TIEthernetManager(service, ctx.mMainThread.getHandler());
+                    }});
+            }
 
         registerService(WINDOW_SERVICE, new ServiceFetcher() {
                 public Object getService(ContextImpl ctx) {

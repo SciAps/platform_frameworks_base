@@ -17,6 +17,7 @@
 package com.android.systemui.statusbar;
 
 import android.content.Context;
+import android.os.SystemProperties;
 import android.util.AttributeSet;
 import android.util.Slog;
 import android.view.View;
@@ -45,11 +46,13 @@ public class SignalClusterView
     private int mMobileStrengthId = 0, mMobileActivityId = 0, mMobileTypeId = 0;
     private boolean mIsAirplaneMode = false;
     private int mAirplaneIconId = 0;
+    private boolean mIsEthernetConnected = false;
+    private int mEthStatusIconId = 0;
     private String mWifiDescription, mMobileDescription, mMobileTypeDescription;
 
     ViewGroup mWifiGroup, mMobileGroup;
-    ImageView mWifi, mMobile, mWifiActivity, mMobileActivity, mMobileType, mAirplane;
-    View mSpacer;
+    ImageView mWifi, mMobile, mWifiActivity, mMobileActivity, mMobileType, mAirplane, mEthernet;
+    View mSpacer, mSpacer1;
 
     public SignalClusterView(Context context) {
         this(context, null);
@@ -81,6 +84,10 @@ public class SignalClusterView
         mMobileType     = (ImageView) findViewById(R.id.mobile_type);
         mSpacer         =             findViewById(R.id.spacer);
         mAirplane       = (ImageView) findViewById(R.id.airplane);
+        if (SystemProperties.OMAP_ENHANCEMENT) {
+            mSpacer1  = findViewById(R.id.spacer1);
+            mEthernet = (ImageView) findViewById(R.id.ethernet_status_icon);
+        }
 
         apply();
     }
@@ -96,6 +103,10 @@ public class SignalClusterView
         mMobileType     = null;
         mSpacer         = null;
         mAirplane       = null;
+        if (SystemProperties.OMAP_ENHANCEMENT) {
+            mSpacer1  = null;
+            mEthernet = null;
+        }
 
         super.onDetachedFromWindow();
     }
@@ -130,6 +141,20 @@ public class SignalClusterView
         mAirplaneIconId = airplaneIconId;
 
         apply();
+    }
+
+    @Override
+    public void setIsEthernetConnected(boolean is, int ethIconId) {
+        if (SystemProperties.OMAP_ENHANCEMENT) {
+            mIsEthernetConnected = is;
+            mEthStatusIconId     = ethIconId;
+
+            apply();
+        } else {
+            // Empty implementation for nonOMAP. Just removing warnings
+            is = is;
+            ethIconId = ethIconId;
+        }
     }
 
     @Override
@@ -176,6 +201,20 @@ public class SignalClusterView
             mAirplane.setImageResource(mAirplaneIconId);
         } else {
             mAirplane.setVisibility(View.GONE);
+        }
+
+        /*
+         * TI change. Show/hide ethernet icon on status bar
+         */
+        if (SystemProperties.OMAP_ENHANCEMENT) {
+            if (mIsEthernetConnected) {
+                mEthernet.setVisibility(View.VISIBLE);
+                mEthernet.setImageResource(mEthStatusIconId);
+                mSpacer1.setVisibility(View.INVISIBLE);
+            } else {
+                mEthernet.setVisibility(View.GONE);
+                mSpacer1.setVisibility(View.GONE);
+            }
         }
 
         if (mMobileVisible && mWifiVisible && mIsAirplaneMode) {

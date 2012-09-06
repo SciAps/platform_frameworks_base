@@ -351,6 +351,13 @@ public class DownloadManager {
          */
         public static final int NETWORK_BLUETOOTH = 1 << 2;
 
+        /**
+         * Bit flag for {@link #setAllowedNetworkTypes} corresponding to
+         * {@link ConnectivityManager#TYPE_ETHERNET}.
+         * @hide
+         */
+        public static final int NETWORK_ETHERNET = 1 << 3;
+
         private Uri mUri;
         private Uri mDestinationUri;
         private List<Pair<String, String>> mRequestHeaders = new ArrayList<Pair<String, String>>();

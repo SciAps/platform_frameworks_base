@@ -353,6 +353,12 @@
     <!-- Content description of the button for removing a notification in the notification panel for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
     <string name="accessibility_remove_notification">Clear notification.</string>
 
+    <!-- Content description of the Ethernet connection icon in the notification panel for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
+    <string name="accessibility_ethernet_connected">Ethernet connected.</string>
+
+    <!-- Content description of the Ethernet disconnection icon in the notification panel for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
+    <string name="accessibility_ethernet_disconnected">Ethernet disconnected.</string>
+
     <!-- Content description of the enabled GPS icon in the notification panel for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
     <string name="accessibility_gps_enabled">GPS enabled.</string>
 

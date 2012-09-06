@@ -51,6 +51,16 @@ int dhcp_do_request_renew(const char *ifname,
 int dhcp_stop(const char *ifname);
 int dhcp_release_lease(const char *ifname);
 char *dhcp_get_errmsg();
+
+#ifdef OMAP_ENHANCEMENT
+int ifc_configure(const char *ifname,
+                in_addr_t address,
+                uint32_t prefixLength,
+                in_addr_t gateway,
+                in_addr_t dns1,
+                in_addr_t dns2);
+int ifc_clear_addresses(const char *name);
+#endif
 }
 
 #define NETUTILS_PKG_NAME "android/net/NetworkUtils"
@@ -206,6 +216,35 @@ static jstring android_net_utils_getDhcpError(JNIEnv* env, jobject clazz)
     return env->NewStringUTF(::dhcp_get_errmsg());
 }
 
+#ifdef OMAP_ENHANCEMENT
+static jboolean android_net_utils_configureIface(JNIEnv* env, jobject clazz,
+      jstring ifname, jint addr, jint prefixlen, jint gateway, jint dns1, jint dns2)
+{
+    int result;
+
+    const char *nameStr = env->GetStringUTFChars(ifname, NULL);
+
+    ALOGD("android_net_utils_configureIface in ifname=%s addr=%d prefixlen=%d prefixlen=0x%x\n",
+          nameStr, addr, prefixlen, prefixlen);
+
+    result = ::ifc_configure(nameStr, addr, prefixlen, gateway, dns1, dns2);
+    env->ReleaseStringUTFChars(ifname, nameStr);
+    return (jboolean)(result == 0);
+}
+
+static jboolean android_net_utils_clearIfaceAddresses(JNIEnv* env, jobject clazz, jstring ifname)
+{
+    int result;
+
+    const char *nameStr = env->GetStringUTFChars(ifname, NULL);
+
+    ALOGD("android_net_utils_clearIfaceAddresses in ifname=%s\n", nameStr);
+
+    result = ::ifc_clear_addresses(nameStr);
+    env->ReleaseStringUTFChars(ifname, nameStr);
+    return (jboolean)(result == 0);
+}
+#endif
 // ----------------------------------------------------------------------------
 
 /*
@@ -222,6 +261,10 @@ static JNINativeMethod gNetworkUtilMethods[] = {
     { "stopDhcp", "(Ljava/lang/String;)Z",  (void *)android_net_utils_stopDhcp },
     { "releaseDhcpLease", "(Ljava/lang/String;)Z",  (void *)android_net_utils_releaseDhcpLease },
     { "getDhcpError", "()Ljava/lang/String;", (void*) android_net_utils_getDhcpError },
+#ifdef OMAP_ENHANCEMENT
+    { "configureIface", "(Ljava/lang/String;IIIII)Z", (void*) android_net_utils_configureIface },
+    { "clearIfaceAddresses", "(Ljava/lang/String;)Z", (void*) android_net_utils_clearIfaceAddresses },
+#endif
 };
 
 int register_android_net_NetworkUtils(JNIEnv* env)

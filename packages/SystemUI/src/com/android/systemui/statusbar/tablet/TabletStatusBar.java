@@ -38,6 +38,7 @@ import android.inputmethodservice.InputMethodService;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
+import android.os.SystemProperties;
 import android.text.TextUtils;
 import android.util.Slog;
 import android.view.Display;
@@ -278,6 +279,14 @@ public class TabletStatusBar extends BaseStatusBar implements
                 (TextView)mNotificationPanel.findViewById(R.id.mobile_text));
         mNetworkController.addCombinedLabelView(
                 (TextView)mBarContents.findViewById(R.id.network_text));
+
+        final ImageView ethernetIcon =
+                (ImageView)mNotificationPanel.findViewById(R.id.ethernet_icon);
+        if (SystemProperties.OMAP_ENHANCEMENT) {
+            if (ethernetIcon != null) {
+                mNetworkController.addEthernetIconView(ethernetIcon);
+            }
+        }
 
         mStatusBarView.setIgnoreChildren(0, mNotificationTrigger, mNotificationPanel);
 

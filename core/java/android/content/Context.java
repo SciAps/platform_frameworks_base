@@ -1817,6 +1817,8 @@ public abstract class Context {
      * @see android.app.UiModeManager
      * @see #DOWNLOAD_SERVICE
      * @see android.app.DownloadManager
+     * @see #ETHERNET_SERVICE
+     * @see android.net.eth.TIEthernetManager
      */
     public abstract Object getSystemService(String name);
 
@@ -2048,6 +2050,17 @@ public abstract class Context {
      * @see android.net.wifi.p2p.WifiP2pManager
      */
     public static final String WIFI_P2P_SERVICE = "wifip2p";
+
+    /**
+     * Use with {@link #getSystemService} to retrieve a {@link
+     * android.net.eth.TIEthernetManager} for handling management of
+     * ethernet access.
+     *
+     * @see #getSystemService
+     * @see android.net.eth.TIEthernetManager
+     * @hide
+     */
+    public static final String ETHERNET_SERVICE = "ethernet";
 
     /**
      * Use with {@link #getSystemService} to retrieve a {@link

@@ -3093,6 +3093,13 @@ public final class Settings {
         public static final String ANDROID_ID = "android_id";
 
         /**
+         * Whether ethernet is enabled/disabled
+         * 0=disabled. 1=enabled.
+         * TI specific public variable. Hide it.
+         * @hide
+         */
+        public static final String ETHERNET_ON = "ethernet_on";
+        /**
          * @deprecated Use {@link android.provider.Settings.Global#BLUETOOTH_ON} instead
          */
         @Deprecated

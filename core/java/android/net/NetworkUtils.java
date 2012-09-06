@@ -103,6 +103,31 @@ public class NetworkUtils {
     public native static String getDhcpError();
 
     /**
+     * Try to assign static configuration to net interface
+     * @param interfaceName the name of the interface which should be configured
+     * @param staticAddress interface static IP address
+     * @param prefixLength network mask
+     * @param gatewayAddress gateway IP address
+     * @param dns1 DNS #1 IP address
+     * @param dns2 DNS #2 IP address
+     * @return {@code true} for success, {@code false} for failure
+     */
+    public native static boolean configureIface(String interfaceName,
+                                                int staticAddress,
+                                                int prefixLength,
+                                                int gatewayAddress,
+                                                int dns1,
+                                                int dns2);
+
+    /**
+     * Try to clear static IP addresses assigned to interface
+     * @param interfaceName the name of the interface which addresses
+     * should be cleared
+     * @return {@code true} for success, {@code false} for failure
+     */
+    public native static boolean clearIfaceAddresses(String interfaceName);
+
+    /**
      * Convert a IPv4 address from an integer to an InetAddress.
      * @param hostAddress an int corresponding to the IPv4 address in network byte order
      */

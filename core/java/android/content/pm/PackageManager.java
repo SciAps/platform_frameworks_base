@@ -1119,6 +1119,13 @@ public abstract class PackageManager {
     public static final String FEATURE_TELEVISION = "android.hardware.type.television";
 
     /**
+     * Feature for {@link #getSystemAvailableFeatures} and
+     * {@link #hasSystemFeature}: The device supports Ethernet networking.
+     * @hide
+     */
+    public static final String FEATURE_ETHERNET = "android.hardware.ethernet";
+
+    /**
      * Action to external storage service to clean out removed apps.
      * @hide
      */
