@@ -3331,6 +3331,14 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
                                 mBluetoothA2dpEnabled ?
                                         AudioSystem.FORCE_NONE : AudioSystem.FORCE_NO_BT_A2DP);
                     }
+
+                    /* DOLBY_AUDIOEFFECT_DS */
+                    // Send a broadcast to DsService
+                    if (SystemProperties.OMAP_ENHANCEMENT) {
+                        Intent broadcast = new Intent("media_server_started");
+                        mContext.sendBroadcast(broadcast);
+                    }
+
                     // indicate the end of reconfiguration phase to audio HAL
                     AudioSystem.setParameters("restarting=false");
                     break;
