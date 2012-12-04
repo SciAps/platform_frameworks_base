@@ -735,6 +735,11 @@ static void nativeUnblankDisplay(JNIEnv* env, jclass clazz, jobject tokenObj) {
     SurfaceComposerClient::unblankDisplay(token);
 }
 
+#ifdef OMAP_ENHANCEMENT
+static jint nativeGetMaxTextureSize(JNIEnv* env, jclass clazz) {
+    return SurfaceComposerClient::getMaxTextureSize();
+}
+#endif
 // ----------------------------------------------------------------------------
 
 static void nativeCopyFrom(JNIEnv* env, jobject surfaceObj, jobject otherObj) {
@@ -871,6 +876,10 @@ static JNINativeMethod gSurfaceMethods[] = {
             (void*)nativeReadFromParcel },
     {"nativeWriteToParcel", "(Landroid/os/Parcel;)V",
             (void*)nativeWriteToParcel },
+#ifdef OMAP_ENHANCEMENT
+    {"nativeGetMaxTextureSize", "()I",
+            (void*)nativeGetMaxTextureSize },
+#endif
 };
 
 int register_android_view_Surface(JNIEnv* env)
