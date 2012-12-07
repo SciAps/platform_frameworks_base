@@ -57,6 +57,14 @@ public class TIEthernetManager {
      */
     public static final String ETH_LINK_CONFIGURATION_CHANGED_ACTION = "android.net.eth.LINK_CHANGE";
     /**
+     * Intent will be sticky broadcastet in case of adding new ethernet interface
+     */
+    public static final String ETH_INTERFACE_ADDED_ACTION = "android.net.eth.INTERFACE_ADDED";
+    /**
+     * Intent will be sticky broadcastet in case of removing ethernet interface
+     */
+    public static final String ETH_INTERFACE_REMOVED_ACTION = "android.net.eth.INTERFACE_REMOVED";
+    /**
      * The lookup key for a LinkProperties object associated with the
      * ethernet interface. Retrieve it with {@link android.content.Intent#getParcelableExtra(String)}.
      */
