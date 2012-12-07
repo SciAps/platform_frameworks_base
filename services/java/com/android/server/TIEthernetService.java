@@ -42,6 +42,7 @@ import android.net.eth.TIEthernetManager;
 import android.provider.Settings;
 import android.util.Log;
 
+import java.lang.Thread;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -73,14 +74,15 @@ public class TIEthernetService extends ITIEthernetManager.Stub {
 
         mIsEthernetEnabled = false;
 
-        IBinder binder = ServiceManager.getService(Context.NETWORKMANAGEMENT_SERVICE);
-        mNMService = INetworkManagementService.Stub.asInterface(binder);
-        mEthMonitor = new TIEthernetMonitor(mContext, TIEthernetService.this);
-
         bootCompleteReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 // Boot completed. Check persistent state and enable ethernet if need
+                Log.d(TAG, "ACTION_BOOT_COMPLETED intent received");
+                IBinder binder = ServiceManager.getService(Context.NETWORKMANAGEMENT_SERVICE);
+                mNMService = INetworkManagementService.Stub.asInterface(binder);
+                mEthMonitor = new TIEthernetMonitor(mContext, TIEthernetService.this);
+
                 if (getEthernetPersistedState()) {
                     setEthernetState(true);
                 }
@@ -101,7 +103,7 @@ public class TIEthernetService extends ITIEthernetManager.Stub {
         int dns1 = dnses.size() > 0 ? NetworkUtils.inetAddressToInt(dnses.get(0)) : 0;
         int dns2 = dnses.size() > 1 ? NetworkUtils.inetAddressToInt(dnses.get(1)) : 0;
 
-        Log.e(TAG, "Start static configuration for " + iface);
+        Log.d(TAG, "Start static configuration for " + iface);
 
         LinkProperties linkProp = new LinkProperties();
         linkProp.setInterfaceName(iface);
@@ -144,7 +146,7 @@ public class TIEthernetService extends ITIEthernetManager.Stub {
             netInfo.setIsAvailable(true);
 
             try {
-                Log.e(TAG, "Configurating of static IP finished for " + ec.getIfaceName() + ". " + mNMService.getInterfaceConfig(ec.getIfaceName()));
+                Log.d(TAG, "Configurating of static IP finished for " + ec.getIfaceName() + ". " + mNMService.getInterfaceConfig(ec.getIfaceName()));
             } catch (RemoteException ex) {
                 Log.e(TAG, "Unexpected exception. Network manager service died?", ex);
             }
@@ -263,7 +265,7 @@ public class TIEthernetService extends ITIEthernetManager.Stub {
 
         Thread dhcpThread = new Thread(new Runnable() {
             public void run() {
-                Log.e(TAG, "DHCP negotiation started for " + iface);
+                Log.d(TAG, "DHCP negotiation started for " + iface);
                 DhcpInfoInternal dhcpInfoInternal = new DhcpInfoInternal();
                 if (!NetworkUtils.runDhcp(iface, dhcpInfoInternal)) {
                     Log.e(TAG, "DHCP negotiation error:" + NetworkUtils.getDhcpError());
@@ -277,7 +279,7 @@ public class TIEthernetService extends ITIEthernetManager.Stub {
                     sendInterfaceLinkConfigurationChangedBroadcast(linkProp);
                     sendInterfaceStateChangeBroadcast(linkProp, netInfo);
                 } else {
-                    Log.e(TAG, "DHCP negotiation finished for " + iface + ": " + dhcpInfoInternal.toString());
+                    Log.d(TAG, "DHCP negotiation finished for " + iface + ": " + dhcpInfoInternal.toString());
                     LinkProperties linkProp = dhcpInfoInternal.makeLinkProperties();
                     linkProp.setInterfaceName(iface);
 
@@ -310,7 +312,7 @@ public class TIEthernetService extends ITIEthernetManager.Stub {
         sendInterfaceStateChangeBroadcast(linkProp, netInfo);
 
         if (NetworkUtils.stopDhcp(iface)) {
-            Log.e(TAG, "DHCP successfuly stopped for " + iface);
+            Log.d(TAG, "DHCP successfuly stopped for " + iface);
 
             linkProp = new LinkProperties();
             linkProp.setInterfaceName(iface);
@@ -327,21 +329,46 @@ public class TIEthernetService extends ITIEthernetManager.Stub {
     }
 
     private void sendInterfaceLinkConfigurationChangedBroadcast(LinkProperties prop) {
+        LinkProperties clonedProp = new LinkProperties(prop);
         Intent intent = new Intent(TIEthernetManager.ETH_LINK_CONFIGURATION_CHANGED_ACTION);
-        intent.putExtra(TIEthernetManager.EXTRA_LINK_PROPERTIES, new LinkProperties(prop));
-        mContext.sendBroadcast(intent);
+        intent.putExtra(TIEthernetManager.EXTRA_LINK_PROPERTIES, clonedProp);
+        new BroadcastThread(mContext, intent).start();
+        Log.d(TAG, "Broadcasting ETH_LINK_CONFIGURATION_CHANGED_ACTION: " + "LinkProperties=" + clonedProp);
     }
 
     private void sendInterfaceStateChangeBroadcast(LinkProperties prop, NetworkInfo info) {
+        LinkProperties clonedProp = new LinkProperties(prop);
+        NetworkInfo clonedInfo = new NetworkInfo(info);
         Intent intent = new Intent(TIEthernetManager.ETH_INTERFACE_STATE_CHANGED_ACTION);
-        intent.putExtra(TIEthernetManager.EXTRA_NETWORK_INFO, new NetworkInfo(info));
-        intent.putExtra(TIEthernetManager.EXTRA_LINK_PROPERTIES, new LinkProperties (prop));
-        mContext.sendBroadcast(intent);
+        intent.putExtra(TIEthernetManager.EXTRA_NETWORK_INFO, clonedInfo);
+        intent.putExtra(TIEthernetManager.EXTRA_LINK_PROPERTIES, clonedProp);
+        new BroadcastThread(mContext, intent).start();
+        Log.d(TAG, "Broadcasting ETH_INTERFACE_STATE_CHANGED_ACTION: " + "LinkProperties=" + clonedProp + ", networkInfo=" + clonedInfo);
     }
 
     private void sendGlobalStateChangeBroadcast() {
         Intent intent = new Intent(TIEthernetManager.ETH_GLOBAL_STATE_CHANGED_ACTION);
         mContext.sendBroadcast(intent);
+    }
+
+    private void sendInterfaceRemovedBroadcast(String iface) {
+        if (iface != null) {
+            LinkProperties linkProp = new LinkProperties();
+            linkProp.setInterfaceName(iface);
+            Intent intent = new Intent(TIEthernetManager.ETH_INTERFACE_REMOVED_ACTION);
+            intent.putExtra(TIEthernetManager.EXTRA_LINK_PROPERTIES, new LinkProperties(linkProp));
+            mContext.sendStickyBroadcast(intent);
+        }
+    }
+
+    private void sendInterfaceAddedBroadcast(String iface) {
+        if (iface != null) {
+            LinkProperties linkProp = new LinkProperties();
+            linkProp.setInterfaceName(iface);
+            Intent intent = new Intent(TIEthernetManager.ETH_INTERFACE_ADDED_ACTION);
+            intent.putExtra(TIEthernetManager.EXTRA_LINK_PROPERTIES, new LinkProperties(linkProp));
+            mContext.sendStickyBroadcast(intent);
+        }
     }
 
     /**
@@ -351,6 +378,7 @@ public class TIEthernetService extends ITIEthernetManager.Stub {
      */
     public void interfaceRemoved(String iface) {
         Log.d(TAG, "interfaceRemoved " + iface + " uevent received");
+        sendInterfaceAddedBroadcast(iface);
     }
 
     /**
@@ -383,6 +411,7 @@ public class TIEthernetService extends ITIEthernetManager.Stub {
      */
     public void interfaceAdded(String iface) {
         Log.d(TAG, "interfaceAdded " + iface + " uevent received");
+        sendInterfaceAddedBroadcast(iface);
         try {
             // We don't get link status indications unless the iface is up.
             // Bring it up!
@@ -531,5 +560,22 @@ public class TIEthernetService extends ITIEthernetManager.Stub {
     private boolean getEthernetPersistedState() {
         ContentResolver contentResolver = mContext.getContentResolver();
         return (Settings.Secure.getInt(contentResolver, Settings.Secure.ETHERNET_ON, 0) > 0);
+    }
+}
+
+// To prevent broadcast intents from blocking
+// send it using different threads
+class BroadcastThread extends Thread {
+    private Intent intent;
+    private Context context;
+
+    public BroadcastThread(Context c, Intent i) {
+        this.intent = i;
+        this.context = c;
+    }
+
+    @Override
+    public void run() {
+        context.sendStickyBroadcast(intent);
     }
 }
