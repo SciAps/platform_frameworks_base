@@ -53,6 +53,7 @@ import android.os.RemoteCallbackList;
 import android.os.SELinux;
 import android.os.ServiceManager;
 import android.os.SystemClock;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.service.wallpaper.IWallpaperConnection;
@@ -64,6 +65,7 @@ import android.util.SparseArray;
 import android.util.Xml;
 import android.view.Display;
 import android.view.IWindowManager;
+import android.view.Surface;
 import android.view.WindowManager;
 
 import java.io.FileDescriptor;
@@ -642,6 +644,10 @@ class WallpaperManagerService extends IWallpaperManager.Stub {
             if (width != wallpaper.width || height != wallpaper.height) {
                 wallpaper.width = width;
                 wallpaper.height = height;
+                if (SystemProperties.OMAP_ENHANCEMENT) {
+                    constrainWallpaperSize(wallpaper);
+                }
+
                 saveSettingsLocked(wallpaper);
                 if (mCurrentUserId != userId) return; // Don't change the properties now
                 if (wallpaper.connection != null) {
@@ -685,6 +691,10 @@ class WallpaperManagerService extends IWallpaperManager.Stub {
                 wallpaperUserId = UserHandle.getUserId(callingUid);
             }
             WallpaperData wallpaper = mWallpaperMap.get(wallpaperUserId);
+
+            if (SystemProperties.OMAP_ENHANCEMENT) {
+                constrainWallpaperSize(wallpaper);
+            }
             try {
                 if (outParams != null) {
                     outParams.putInt("width", wallpaper.width);
@@ -1122,14 +1132,18 @@ class WallpaperManagerService extends IWallpaperManager.Stub {
         }
 
         // We always want to have some reasonable width hint.
-        WindowManager wm = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
-        Display d = wm.getDefaultDisplay();
-        int baseSize = d.getMaximumSizeDimension();
-        if (wallpaper.width < baseSize) {
-            wallpaper.width = baseSize;
-        }
-        if (wallpaper.height < baseSize) {
-            wallpaper.height = baseSize;
+        if (SystemProperties.OMAP_ENHANCEMENT) {
+            constrainWallpaperSize(wallpaper);
+        } else {
+            WindowManager wm = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
+            Display d = wm.getDefaultDisplay();
+            int baseSize = d.getMaximumSizeDimension();
+            if (wallpaper.width < baseSize) {
+                wallpaper.width = baseSize;
+            }
+            if (wallpaper.height < baseSize) {
+                wallpaper.height = baseSize;
+            }
         }
     }
 
@@ -1298,6 +1312,28 @@ class WallpaperManagerService extends IWallpaperManager.Stub {
                     pw.print("    mLastDiedTime=");
                     pw.println(wallpaper.lastDiedTime - SystemClock.uptimeMillis());
                 }
+            }
+        }
+    }
+
+    private void constrainWallpaperSize(WallpaperData wallpaper) {
+        WindowManager wm = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
+        Display d = wm.getDefaultDisplay();
+        int baseSize = d.getMaximumSizeDimension();
+        if (wallpaper.width < baseSize) {
+            wallpaper.width = baseSize;
+        }
+        if (wallpaper.height < baseSize) {
+            wallpaper.height = baseSize;
+        }
+
+        int maxTextureSize = Surface.getMaxTextureSize();
+        if (maxTextureSize > 0) {
+            if (wallpaper.width > maxTextureSize) {
+                wallpaper.width = maxTextureSize;
+            }
+            if (wallpaper.height > maxTextureSize) {
+                wallpaper.height = maxTextureSize;
             }
         }
     }
