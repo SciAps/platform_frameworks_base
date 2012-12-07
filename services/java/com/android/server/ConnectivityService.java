@@ -593,7 +593,11 @@ public class ConnectivityService extends IConnectivityManager.Stub {
                 case TYPE_WIMAX:
                     return makeWimaxStateTracker(mContext, mTrackerHandler);
                 case TYPE_ETHERNET:
-                    return EthernetDataTracker.getInstance();
+                    if (SystemProperties.OMAP_ENHANCEMENT) {
+                        return TIEthernetDataTracker.getInstance();
+                    } else {
+                        return EthernetDataTracker.getInstance();
+                    }
                 default:
                     throw new IllegalArgumentException(
                             "Trying to create a NetworkStateTracker for an unknown radio type: "
