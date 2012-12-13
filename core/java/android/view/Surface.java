@@ -275,6 +275,7 @@ public class Surface implements Parcelable {
     private native void nativeReadFromParcel(Parcel source);
     private native void nativeWriteToParcel(Parcel dest);
 
+    private static native int nativeGetMaxTextureSize();
 
     /**
      * Create an empty surface, which will later be filled in by readFromParcel().
@@ -733,6 +734,14 @@ public class Surface implements Parcelable {
         if (HEADLESS) {
             throw new UnsupportedOperationException("Device is headless");
         }
+    }
+
+    /**
+     * Get maximal texture size supported by hardware.
+     * @hide
+     */
+    public static int getMaxTextureSize() {
+        return nativeGetMaxTextureSize();
     }
 
     /**
