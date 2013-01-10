@@ -645,7 +645,7 @@ class WallpaperManagerService extends IWallpaperManager.Stub {
                 wallpaper.width = width;
                 wallpaper.height = height;
                 if (SystemProperties.OMAP_ENHANCEMENT) {
-                    constrainWallpaperSize(wallpaper);
+                    constrainMaxWallpaperSize(wallpaper);
                 }
 
                 saveSettingsLocked(wallpaper);
@@ -693,7 +693,7 @@ class WallpaperManagerService extends IWallpaperManager.Stub {
             WallpaperData wallpaper = mWallpaperMap.get(wallpaperUserId);
 
             if (SystemProperties.OMAP_ENHANCEMENT) {
-                constrainWallpaperSize(wallpaper);
+                constrainMaxWallpaperSize(wallpaper);
             }
             try {
                 if (outParams != null) {
@@ -1132,18 +1132,18 @@ class WallpaperManagerService extends IWallpaperManager.Stub {
         }
 
         // We always want to have some reasonable width hint.
+        WindowManager wm = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
+        Display d = wm.getDefaultDisplay();
+        int baseSize = d.getMaximumSizeDimension();
+        if (wallpaper.width < baseSize) {
+            wallpaper.width = baseSize;
+        }
+        if (wallpaper.height < baseSize) {
+            wallpaper.height = baseSize;
+        }
+
         if (SystemProperties.OMAP_ENHANCEMENT) {
-            constrainWallpaperSize(wallpaper);
-        } else {
-            WindowManager wm = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
-            Display d = wm.getDefaultDisplay();
-            int baseSize = d.getMaximumSizeDimension();
-            if (wallpaper.width < baseSize) {
-                wallpaper.width = baseSize;
-            }
-            if (wallpaper.height < baseSize) {
-                wallpaper.height = baseSize;
-            }
+            constrainMaxWallpaperSize(wallpaper);
         }
     }
 
@@ -1316,17 +1316,7 @@ class WallpaperManagerService extends IWallpaperManager.Stub {
         }
     }
 
-    private void constrainWallpaperSize(WallpaperData wallpaper) {
-        WindowManager wm = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
-        Display d = wm.getDefaultDisplay();
-        int baseSize = d.getMaximumSizeDimension();
-        if (wallpaper.width < baseSize) {
-            wallpaper.width = baseSize;
-        }
-        if (wallpaper.height < baseSize) {
-            wallpaper.height = baseSize;
-        }
-
+    private void constrainMaxWallpaperSize(WallpaperData wallpaper) {
         int maxTextureSize = Surface.getMaxTextureSize();
         if (maxTextureSize > 0) {
             if (wallpaper.width > maxTextureSize) {
