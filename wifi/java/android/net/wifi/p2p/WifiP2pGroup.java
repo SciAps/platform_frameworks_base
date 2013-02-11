@@ -18,6 +18,7 @@ package android.net.wifi.p2p;
 
 import android.os.Parcelable;
 import android.os.Parcel;
+import android.os.SystemProperties;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -190,6 +191,17 @@ public class WifiP2pGroup implements Parcelable {
     /** @hide */
     public void addClient(String address) {
         addClient(new WifiP2pDevice(address));
+    }
+
+    /** @hide */
+    public void addClient(String address, String interfaceAddr) {
+        if (SystemProperties.OMAP_ENHANCEMENT) {
+            WifiP2pDevice newDevice = new WifiP2pDevice(address);
+            newDevice.interfaceAddress = interfaceAddr;
+            addClient(newDevice);
+        } else {
+            addClient(new WifiP2pDevice(address));
+        }
     }
 
     /** @hide */

@@ -18,6 +18,7 @@ package android.net.wifi.p2p;
 
 import android.os.Parcelable;
 import android.os.Parcel;
+import android.os.SystemProperties;
 import android.util.Log;
 
 import java.util.regex.Pattern;
@@ -41,6 +42,12 @@ public class WifiP2pDevice implements Parcelable {
      * The device MAC address uniquely identifies a Wi-Fi p2p device
      */
     public String deviceAddress = "";
+
+    /**
+    /* Address of the P2P interface of the device can be different from deviceAddress
+     * @hide
+     */
+    public String interfaceAddress = "";
 
     /**
      * Primary device type identifies the type of device. For example, an application
@@ -179,6 +186,9 @@ public class WifiP2pDevice implements Parcelable {
             case 1:
                 /* Just a device address */
                 deviceAddress = string;
+                if (SystemProperties.OMAP_ENHANCEMENT) {
+                    interfaceAddress = deviceAddress;
+                }
                 return;
             case 2:
                 match = twoTokenPattern.matcher(string);
@@ -186,11 +196,17 @@ public class WifiP2pDevice implements Parcelable {
                     throw new IllegalArgumentException("Malformed supplicant event");
                 }
                 deviceAddress = match.group(2);
+                if (SystemProperties.OMAP_ENHANCEMENT) {
+                    interfaceAddress = deviceAddress;
+                }
                 return;
             case 3:
                 match = threeTokenPattern.matcher(string);
                 if (!match.find()) {
                     throw new IllegalArgumentException("Malformed supplicant event");
+                }
+                if (SystemProperties.OMAP_ENHANCEMENT) {
+                    interfaceAddress = tokens[1];
                 }
                 deviceAddress = match.group(1);
                 return;
@@ -200,6 +216,9 @@ public class WifiP2pDevice implements Parcelable {
                     throw new IllegalArgumentException("Malformed supplicant event");
                 }
 
+                if (SystemProperties.OMAP_ENHANCEMENT) {
+                    interfaceAddress = tokens[1];
+                }
                 deviceAddress = match.group(3);
                 primaryDeviceType = match.group(4);
                 deviceName = match.group(5);
@@ -264,6 +283,9 @@ public class WifiP2pDevice implements Parcelable {
     public void update(WifiP2pDevice device) {
         if (device == null || device.deviceAddress == null) return;
         deviceName = device.deviceName;
+        if (SystemProperties.OMAP_ENHANCEMENT) {
+            interfaceAddress = device.interfaceAddress;
+        }
         primaryDeviceType = device.primaryDeviceType;
         secondaryDeviceType = device.secondaryDeviceType;
         wpsConfigMethodsSupported = device.wpsConfigMethodsSupported;
@@ -288,6 +310,9 @@ public class WifiP2pDevice implements Parcelable {
         StringBuffer sbuf = new StringBuffer();
         sbuf.append("Device: ").append(deviceName);
         sbuf.append("\n deviceAddress: ").append(deviceAddress);
+        if (SystemProperties.OMAP_ENHANCEMENT) {
+            sbuf.append("\n interfaceAddress: ").append(interfaceAddress);
+        }
         sbuf.append("\n primary type: ").append(primaryDeviceType);
         sbuf.append("\n secondary type: ").append(secondaryDeviceType);
         sbuf.append("\n wps: ").append(wpsConfigMethodsSupported);
@@ -308,6 +333,9 @@ public class WifiP2pDevice implements Parcelable {
         if (source != null) {
             deviceName = source.deviceName;
             deviceAddress = source.deviceAddress;
+            if (SystemProperties.OMAP_ENHANCEMENT) {
+                interfaceAddress = source.interfaceAddress;
+            }
             primaryDeviceType = source.primaryDeviceType;
             secondaryDeviceType = source.secondaryDeviceType;
             wpsConfigMethodsSupported = source.wpsConfigMethodsSupported;
@@ -322,6 +350,9 @@ public class WifiP2pDevice implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(deviceName);
         dest.writeString(deviceAddress);
+        if (SystemProperties.OMAP_ENHANCEMENT) {
+            dest.writeString(interfaceAddress);
+        }
         dest.writeString(primaryDeviceType);
         dest.writeString(secondaryDeviceType);
         dest.writeInt(wpsConfigMethodsSupported);
@@ -343,6 +374,9 @@ public class WifiP2pDevice implements Parcelable {
                 WifiP2pDevice device = new WifiP2pDevice();
                 device.deviceName = in.readString();
                 device.deviceAddress = in.readString();
+                if (SystemProperties.OMAP_ENHANCEMENT) {
+                    device.interfaceAddress = in.readString();
+                }
                 device.primaryDeviceType = in.readString();
                 device.secondaryDeviceType = in.readString();
                 device.wpsConfigMethodsSupported = in.readInt();

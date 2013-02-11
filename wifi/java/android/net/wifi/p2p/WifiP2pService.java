@@ -1500,9 +1500,25 @@ public class WifiP2pService extends IWifiP2pManager.Stub {
                             mSavedProvDiscDevice = null;
                         }
                         if (mPeers.get(deviceAddress) != null) {
-                            mGroup.addClient(mPeers.get(deviceAddress));
+                            if (SystemProperties.OMAP_ENHANCEMENT) {
+                                String interfaceAddress = device.interfaceAddress;
+                                WifiP2pDevice peer = mPeers.get(deviceAddress);
+                                peer.interfaceAddress = interfaceAddress;
+                                mGroup.addClient(peer);
+                            } else {
+                                mGroup.addClient(mPeers.get(deviceAddress));
+                            }
                         } else {
-                            mGroup.addClient(deviceAddress);
+                            if (SystemProperties.OMAP_ENHANCEMENT) {
+                                String interfaceAddress = device.interfaceAddress;
+                                if (deviceAddress.equals(interfaceAddress)) {
+                                    mGroup.addClient(deviceAddress);
+                                } else {
+                                    mGroup.addClient(deviceAddress, interfaceAddress);
+                                }
+                            } else {
+                                mGroup.addClient(deviceAddress);
+                            }
                         }
                         mPeers.updateStatus(deviceAddress, WifiP2pDevice.CONNECTED);
                         if (DBG) logd(getName() + " ap sta connected");
