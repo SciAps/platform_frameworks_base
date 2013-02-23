@@ -42,6 +42,7 @@ import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.GroupInfoListener;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Handler;
+import android.os.SystemProperties;
 import android.provider.Settings;
 import android.util.Slog;
 import android.view.Surface;
@@ -640,8 +641,10 @@ final class WifiDisplayController implements DumpUtils.Dump {
                 public void onDisplayConnected(Surface surface,
                         int width, int height, int flags) {
                     if (mConnectedDevice == oldDevice && !mRemoteDisplayConnected) {
-                        Slog.i(TAG, "Opened RTSP connection with Wifi display: "
-                                + mConnectedDevice.deviceName);
+                        if (!SystemProperties.OMAP_ENHANCEMENT) {
+                            Slog.i(TAG, "Opened RTSP connection with Wifi display: "
+                                    + mConnectedDevice.deviceName);
+                        }
                         mRemoteDisplayConnected = true;
                         mHandler.removeCallbacks(mRtspTimeout);
 
@@ -653,10 +656,16 @@ final class WifiDisplayController implements DumpUtils.Dump {
                 @Override
                 public void onDisplayDisconnected() {
                     if (mConnectedDevice == oldDevice) {
-                        Slog.i(TAG, "Closed RTSP connection with Wifi display: "
-                                + mConnectedDevice.deviceName);
-                        mHandler.removeCallbacks(mRtspTimeout);
-                        disconnect();
+                        if (!SystemProperties.OMAP_ENHANCEMENT) {
+                            Slog.i(TAG, "Closed RTSP connection with Wifi display: "
+                                    + mConnectedDevice.deviceName);
+                        }
+                        if (SystemProperties.OMAP_ENHANCEMENT) {
+                            mRemoteDisplayConnected = false;
+                        } else {
+                            mHandler.removeCallbacks(mRtspTimeout);
+                            disconnect();
+                        }
                     }
                 }
 
