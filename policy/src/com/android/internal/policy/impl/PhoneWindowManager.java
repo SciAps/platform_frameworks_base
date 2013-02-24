@@ -67,7 +67,6 @@ import com.android.internal.policy.impl.keyguard.KeyguardViewMediator;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.telephony.ITelephony;
 import com.android.internal.widget.PointerLocationView;
-import com.android.server.display.DisplayManagerService;
 
 import android.util.DisplayMetrics;
 import android.util.EventLog;
