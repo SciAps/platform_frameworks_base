@@ -303,6 +303,10 @@ final class WifiDisplayController implements DumpUtils.Dump {
     }
 
     private void discoverPeers() {
+        if (SystemProperties.OMAP_ENHANCEMENT && mConnectedDevice != null) {
+            Slog.w(TAG,"Discover peers skipped due to active connection.");
+            return;
+        }
         if (!mDiscoverPeersInProgress) {
             mDiscoverPeersInProgress = true;
             mDiscoverPeersRetriesLeft = DISCOVER_PEERS_MAX_RETRIES;
