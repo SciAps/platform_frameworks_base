@@ -37,7 +37,6 @@ import android.content.res.TypedArray;
 import android.database.ContentObserver;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
-import android.hardware.display.DisplayManager;
 import android.media.AudioManager;
 import android.media.IAudioService;
 import android.media.Ringtone;
@@ -235,7 +234,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     IWindowManager mWindowManager;
     WindowManagerFuncs mWindowManagerFuncs;
     PowerManager mPowerManager;
-    DisplayManager mDisplayManager;
     IStatusBarService mStatusBarService;
     final Object mServiceAquireLock = new Object();
     Vibrator mVibrator; // Vibrator for giving feedback of orientation changes
@@ -302,8 +300,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     int mDeskDockRotation;
     int mHdmiRotation;
     boolean mHdmiRotationLock;
-
-    boolean mWifiDisplayConnected = false;
 
     int mUserRotationMode = WindowManagerPolicy.USER_ROTATION_FREE;
     int mUserRotation = Surface.ROTATION_0;
@@ -514,38 +510,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         @Override
         public void onUEvent(UEventObserver.UEvent event) {
             setHdmiPlugged("1".equals(event.get("SWITCH_STATE")));
-        }
-    };
-
-    private DisplayManager.DisplayListener mDisplayListener = new DisplayManager.DisplayListener() {
-        @Override
-        public void onDisplayAdded(int displayId) {
-            scanDisplays();
-        }
-
-        @Override
-        public void onDisplayRemoved(int displayId) {
-            scanDisplays();
-        }
-
-        @Override
-        public void onDisplayChanged(int displayId) {
-        }
-
-        private void scanDisplays() {
-            boolean wifiDisplayConnected = false;
-            Display[] displays = mDisplayManager.getDisplays();
-            for (Display display : displays) {
-                if (display.getType() == Display.TYPE_WIFI) {
-                    wifiDisplayConnected = true;
-                    break;
-                }
-            }
-
-            if (mWifiDisplayConnected != wifiDisplayConnected) {
-                mWifiDisplayConnected = wifiDisplayConnected;
-                updateRotation(true, true);
-            }
         }
     };
 
@@ -976,11 +940,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         // Controls rotation and the like.
         initializeHdmiState();
-
-        if (SystemProperties.OMAP_ENHANCEMENT) {
-            mDisplayManager = (DisplayManager)context.getSystemService(Context.DISPLAY_SERVICE);
-            mDisplayManager.registerDisplayListener(mDisplayListener, mHandler);
-        }
 
         // Match current screen state.
         if (mPowerManager.isScreenOn()) {
@@ -4031,10 +3990,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             } else if (mHdmiPlugged && mHdmiRotationLock) {
                 // Ignore sensor when plugged into HDMI.
                 // Note that the dock orientation overrides the HDMI orientation.
-                preferredRotation = mHdmiRotation;
-            } else if (SystemProperties.OMAP_ENHANCEMENT && mWifiDisplayConnected) {
-                // Ignore sensor when Wifi display is connected.
-                // Lock device to the same orientation as used by HDMI displays.
                 preferredRotation = mHdmiRotation;
             } else if ((mUserRotationMode == WindowManagerPolicy.USER_ROTATION_FREE
                             && (orientation == ActivityInfo.SCREEN_ORIENTATION_USER
