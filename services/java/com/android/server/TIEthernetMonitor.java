@@ -106,7 +106,7 @@ public class TIEthernetMonitor extends INetworkManagementEventObserver.Stub {
 
     public void limitReached(String limitName, String iface) {
         if (iface.matches(ethRegex)) {
-            mEthService.limitReached(iface, iface);
+            mEthService.limitReached(limitName, iface);
         }
     }
 
