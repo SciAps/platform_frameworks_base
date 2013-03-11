@@ -388,7 +388,7 @@ public class TIEthernetService extends ITIEthernetManager.Stub {
      * @param up new state of interface (true - up, false - down)
      */
     public void interfaceStatusChanged(String iface, boolean up) {
-        Log.d(TAG, "Interface status changed: " + iface + (up ? "up" : "down") + " uevent received");
+        Log.d(TAG, "Interface status changed: " + iface + (up ? "up" : "down") + " event received");
     }
 
     /**
@@ -398,10 +398,7 @@ public class TIEthernetService extends ITIEthernetManager.Stub {
      * @param iface interface name where limit has been reached
      */
     public void limitReached(String limitName, String iface) {
-        Log.d(TAG, "limitReached: " + iface + ", limitName=" + iface + " uevent received");
-        LinkProperties linkProp = new LinkProperties();
-        linkProp.setInterfaceName(iface);
-        sendInterfaceLinkConfigurationChangedBroadcast(linkProp);
+        Log.d(TAG, "limitReached: " + limitName + ", iface name:" + iface + " event received");
     }
 
     /**
