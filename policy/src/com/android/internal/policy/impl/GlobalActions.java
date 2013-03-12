@@ -209,7 +209,9 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
             @Override
             protected void changeStateFromPress(boolean buttonOn) {
-                if (!mHasTelephony) return;
+                if (!SystemProperties.OMAP_ENHANCEMENT) {
+                    if (!mHasTelephony) return;
+                }
 
                 // In ECM mode airplane state cannot be changed
                 if (!(Boolean.parseBoolean(
@@ -835,7 +837,9 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     PhoneStateListener mPhoneStateListener = new PhoneStateListener() {
         @Override
         public void onServiceStateChanged(ServiceState serviceState) {
-            if (!mHasTelephony) return;
+            if (!SystemProperties.OMAP_ENHANCEMENT) {
+                if (!mHasTelephony) return;
+            }
             final boolean inAirplaneMode = serviceState.getState() == ServiceState.STATE_POWER_OFF;
             mAirplaneState = inAirplaneMode ? ToggleAction.State.On : ToggleAction.State.Off;
             mAirplaneModeOn.updateState(mAirplaneState);
@@ -885,7 +889,9 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
     private void onAirplaneModeChanged() {
         // Let the service state callbacks handle the state.
-        if (mHasTelephony) return;
+        if (!SystemProperties.OMAP_ENHANCEMENT) {
+            if (mHasTelephony) return;
+        }
 
         boolean airplaneModeOn = Settings.Global.getInt(
                 mContext.getContentResolver(),
@@ -907,7 +913,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
         intent.putExtra("state", on);
         mContext.sendBroadcastAsUser(intent, UserHandle.ALL);
-        if (!mHasTelephony) {
+        if (SystemProperties.OMAP_ENHANCEMENT || !mHasTelephony) {
             mAirplaneState = on ? ToggleAction.State.On : ToggleAction.State.Off;
         }
     }
