@@ -1852,7 +1852,19 @@ public class WifiP2pService extends IWifiP2pManager.Stub {
             ifcg.setInterfaceUp();
             mNwService.setInterfaceConfig(intf, ifcg);
             /* This starts the dnsmasq server */
-            mNwService.startTethering(DHCP_RANGE);
+            if (SystemProperties.OMAP_ENHANCEMENT) {
+                /*this is HACK added to invoke dhcp leases
+                  change script to get IP address provided to
+                  remote end in case our device is group
+                  owner*/
+                int originalLength = DHCP_RANGE.length;
+                String tetherArgs[] = new String[originalLength + 1];
+                System.arraycopy(DHCP_RANGE, 0, tetherArgs, 0, originalLength);
+                tetherArgs[originalLength] = "--dhcp-script=/system/etc/dhcp_script.sh";
+                mNwService.startTethering(tetherArgs);
+            } else {
+                mNwService.startTethering(DHCP_RANGE);
+            }
         } catch (Exception e) {
             loge("Error configuring interface " + intf + ", :" + e);
             return;
