@@ -26,6 +26,7 @@ import android.net.INetworkManagementEventObserver;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -59,7 +60,7 @@ public class TIEthernetMonitor extends INetworkManagementEventObserver.Stub {
     }
 
     /**
-     * Get list of ethernet interfaces that already exist on the board
+     * Get list of ethernet interfaces (in alphabetical order) that already exists on the board
      *
      * @return List of {@link  android.net.InterfaceConfiguration InterfaceConfiguration} objects
      */
@@ -74,6 +75,7 @@ public class TIEthernetMonitor extends INetworkManagementEventObserver.Stub {
                     ifacesList.add(iface);
                 }
             }
+            Collections.sort(ifacesList);
         } catch (RemoteException e) {
             Log.e(TAG, "Could not get list of interfaces " + e);
         }
