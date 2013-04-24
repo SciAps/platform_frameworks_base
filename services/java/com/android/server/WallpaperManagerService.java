@@ -646,6 +646,9 @@ class WallpaperManagerService extends IWallpaperManager.Stub {
                 wallpaper.height = height;
                 if (SystemProperties.OMAP_ENHANCEMENT) {
                     constrainMaxWallpaperSize(wallpaper);
+                    /* Make sure to set correct size to WallpaperService */
+                    width = wallpaper.width;
+                    height = wallpaper.height;
                 }
 
                 saveSettingsLocked(wallpaper);
