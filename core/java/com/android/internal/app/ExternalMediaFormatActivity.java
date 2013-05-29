@@ -27,6 +27,8 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 
+import android.os.storage.StorageVolume;
+
 /**
  * This activity is shown to the user to confirm formatting of external media.
  * It uses the alert dialog style. It will be launched from a notification, or from settings
@@ -34,6 +36,7 @@ import android.util.Log;
 public class ExternalMediaFormatActivity extends AlertActivity implements DialogInterface.OnClickListener {
 
     private static final int POSITIVE_BUTTON = AlertDialog.BUTTON_POSITIVE;
+    private String mPath;
 
     /** Used to detect when the media state changes, in case we need to call finish() */
     private BroadcastReceiver mStorageReceiver = new BroadcastReceiver() {
@@ -56,6 +59,10 @@ public class ExternalMediaFormatActivity extends AlertActivity implements Dialog
         super.onCreate(savedInstanceState);
 
         Log.d("ExternalMediaFormatActivity", "onCreate!");
+        if ("true".equals(System.getProperty("omap.enhancement"))) {
+            mPath = getIntent().getStringExtra(StorageVolume.EXTRA_STORAGE_VOLUME);
+        }
+
         // Set up the "dialog"
         final AlertController.AlertParams p = mAlertParams;
         p.mIconId = com.android.internal.R.drawable.stat_sys_warning;
@@ -95,6 +102,9 @@ public class ExternalMediaFormatActivity extends AlertActivity implements Dialog
         if (which == POSITIVE_BUTTON) {
             Intent intent = new Intent(ExternalStorageFormatter.FORMAT_ONLY);
             intent.setComponent(ExternalStorageFormatter.COMPONENT_NAME);
+            if ("true".equals(System.getProperty("omap.enhancement"))) {
+                intent.putExtra(StorageVolume.EXTRA_STORAGE_VOLUME, mPath);
+            }
             startService(intent);
         }
 

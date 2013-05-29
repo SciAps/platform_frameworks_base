@@ -35,6 +35,7 @@ public class ExternalStorageFormatter extends Service
 
     // If non-null, the volume to format. Otherwise, will use the default external storage directory
     private StorageVolume mStorageVolume;
+    private String mStoragePath;
 
     public static final ComponentName COMPONENT_NAME
             = new ComponentName("android", ExternalStorageFormatter.class.getName());
@@ -85,6 +86,21 @@ public class ExternalStorageFormatter extends Service
         }
 
         mStorageVolume = intent.getParcelableExtra(StorageVolume.EXTRA_STORAGE_VOLUME);
+
+        if ("true".equals(System.getProperty("omap.enhancement"))) {
+            IMountService mountService = getMountService();
+            mStoragePath = intent.getStringExtra(StorageVolume.EXTRA_STORAGE_VOLUME);
+            try {
+                for (StorageVolume vol : mountService.getVolumeList()) {
+                    if (vol.getPath().equals(mStoragePath)) {
+                        mStorageVolume = vol;
+                        break;
+                    }
+                }
+            } catch (RemoteException e) {
+                Log.e(TAG, "Failed getting VolumeList", e);
+            }
+        }
 
         if (mProgressDialog == null) {
             mProgressDialog = new ProgressDialog(this);
