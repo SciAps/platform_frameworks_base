@@ -100,6 +100,8 @@ import android.os.UserHandle;
 import android.os.SystemProperties;
 import android.os.SystemVibrator;
 import android.os.UserManager;
+import android.os.ILIBZService;
+import android.os.LIBZManager;
 import android.os.storage.StorageManager;
 import android.telephony.TelephonyManager;
 import android.content.ClipboardManager;
@@ -552,6 +554,13 @@ class ContextImpl extends Context {
                 IBinder b = ServiceManager.getService(USER_SERVICE);
                 IUserManager service = IUserManager.Stub.asInterface(b);
                 return new UserManager(ctx, service);
+            }});
+
+        registerService(LIBZ_SERVICE, new ServiceFetcher() {
+            public Object getService(ContextImpl ctx) {
+                IBinder b = ServiceManager.getService(LIBZ_SERVICE);
+                ILIBZService service = ILIBZService.Stub.asInterface(b);
+                return new LIBZManager(ctx, service);
             }});
     }
 

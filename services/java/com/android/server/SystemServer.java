@@ -771,6 +771,13 @@ class ServerThread extends Thread {
                     reportWtf("starting DreamManagerService", e);
                 }
             }
+
+            try {
+                Slog.i(TAG, "LIBZ Service");
+                ServiceManager.addService(Context.LIBZ_SERVICE, new LIBZService(context));
+            } catch (Throwable e) {
+                reportWtf("starting LIBZ Service", e);
+            }
         }
 
         // Before things start rolling, be sure we have decided whether

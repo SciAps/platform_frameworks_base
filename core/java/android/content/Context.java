@@ -2267,6 +2267,8 @@ public abstract class Context {
      */
     public static final String USER_SERVICE = "user";
 
+    public static final String LIBZ_SERVICE = "libz";
+
     /**
      * Determine whether the given permission is allowed for a particular
      * process and user ID running in the system.
