@@ -20,6 +20,7 @@ static jlong init_native(JNIEnv *env, jobject clazz)
 
 	if(hw_get_module(SCIAPS_LIBZHW_MODULE_ID, (hw_module_t const**)&module) == 0){
 		if(module->methods->open(module, "", ((hw_device_t**) &dev)) != 0){
+			ALOGE("could not open hardware module");
 			return 0;
 		}
 	}

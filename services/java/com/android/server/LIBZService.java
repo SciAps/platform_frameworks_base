@@ -11,8 +11,9 @@ import android.util.Log;
 
 public class LIBZService extends ILIBZService.Stub {
 
-	public static final String TAG = "libzsys";
+	public static final String TAG = "LIBZService";
 
+	private Context mContext;
 	private long mNativePointer;
 
 	public LIBZService(Context context) {
