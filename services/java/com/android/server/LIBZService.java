@@ -20,10 +20,9 @@ public class LIBZService extends ILIBZService.Stub {
 		super();
 		mContext = context;
 
-		Log.i(TAG, "LIBZ Service started");
-
 		mNativePointer = init_native();
 
+		Log.i(TAG, "LIBZ Service started");
 	}
 
 	protected void finalize() throws Throwable {

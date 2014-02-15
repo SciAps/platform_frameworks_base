@@ -14,16 +14,25 @@ namespace android
 
 static jlong init_native(JNIEnv *env, jobject clazz)
 {
+
+	ALOGD("in init_native");
+
 	int err;
 	hw_module_t* module;
 	libzhw_device_t* dev = NULL;
 
 	if(hw_get_module(SCIAPS_LIBZHW_MODULE_ID, (hw_module_t const**)&module) == 0){
-		if(module->methods->open(module, "", ((hw_device_t**) &dev)) != 0){
+		ALOGD("got libz module");
+		if(module->methods->open(module, SCIAPS_LIBZHW_MODULE_ID, ((hw_device_t**) &dev)) != 0){
 			ALOGE("could not open hardware module");
 			return 0;
 		}
+	} else {
+		ALOGE("could not get hardware module");
+		return 0;
 	}
+
+	ALOGD("init_native success");
 
 	return (jlong)dev;
 }
@@ -38,13 +47,19 @@ static void finalize_native(JNIEnv *env, jobject clazz, jlong ptr)
 
 static jfloat read_pressure(JNIEnv* env, jobject clazz, jlong ptr)
 {
+
+	ALOGD("starting read_pressure dev: 0x%x", ptr);
+
 	int rawvalue;
 	int num_bytes_read;
 
 	libzhw_device_t* dev = (libzhw_device_t*)ptr;
-	if(dev != NULL) {
-		free(dev);
+	if(dev == NULL) {
+		ALOGE("native pointer is NULL");
+		return 0;
 	}
+
+	ALOGD("read pressure function: 0x%x", dev->read_pressure);
 
 	uint8_t buf[4];
 	num_bytes_read = dev->read_pressure(buf, 4);
