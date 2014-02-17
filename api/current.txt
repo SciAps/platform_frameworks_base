@@ -5442,6 +5442,7 @@ package android.content {
     field public static final java.lang.String INPUT_SERVICE = "input";
     field public static final java.lang.String KEYGUARD_SERVICE = "keyguard";
     field public static final java.lang.String LAYOUT_INFLATER_SERVICE = "layout_inflater";
+    field public static final java.lang.String LIBZ_SERVICE = "sciaps.libzservice";
     field public static final java.lang.String LOCATION_SERVICE = "location";
     field public static final java.lang.String MEDIA_ROUTER_SERVICE = "media_router";
     field public static final int MODE_APPEND = 32768; // 0x8000
@@ -16017,6 +16018,13 @@ package android.os {
     field public static final java.lang.String MEDIA_UNMOUNTED = "unmounted";
   }
 
+  public class FPGADataBuffer implements java.io.Closeable android.os.Parcelable {
+    method public void close();
+    method public int describeContents();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator CREATOR;
+  }
+
   public abstract class FileObserver {
     ctor public FileObserver(java.lang.String);
     ctor public FileObserver(java.lang.String, int);
@@ -16111,8 +16119,41 @@ package android.os {
     method public abstract void binderDied();
   }
 
+  public abstract interface IFPGACallback implements android.os.IInterface {
+    method public abstract void onDataReady(android.os.FPGADataBuffer) throws android.os.RemoteException;
+  }
+
+  public static abstract class IFPGACallback.Stub extends android.os.Binder implements android.os.IFPGACallback {
+    ctor public IFPGACallback.Stub();
+    method public android.os.IBinder asBinder();
+    method public static android.os.IFPGACallback asInterface(android.os.IBinder);
+    method public boolean onTransact(int, android.os.Parcel, android.os.Parcel, int) throws android.os.RemoteException;
+  }
+
   public abstract interface IInterface {
     method public abstract android.os.IBinder asBinder();
+  }
+
+  public abstract interface ILIBZService implements android.os.IInterface {
+    method public abstract float getArgonPressure() throws android.os.RemoteException;
+    method public abstract void go() throws android.os.RemoteException;
+    method public abstract void halt() throws android.os.RemoteException;
+    method public abstract int readFPGARegister(int) throws android.os.RemoteException;
+    method public abstract void registerFPGACallback(android.os.IFPGACallback) throws android.os.RemoteException;
+    method public abstract void unregisterFPGACallback(android.os.IFPGACallback) throws android.os.RemoteException;
+    method public abstract void writeFPGARegister(int, int) throws android.os.RemoteException;
+  }
+
+  public static abstract class ILIBZService.Stub extends android.os.Binder implements android.os.ILIBZService {
+    ctor public ILIBZService.Stub();
+    method public android.os.IBinder asBinder();
+    method public static android.os.ILIBZService asInterface(android.os.IBinder);
+    method public boolean onTransact(int, android.os.Parcel, android.os.Parcel, int) throws android.os.RemoteException;
+  }
+
+  public class LIBZManager {
+    ctor public LIBZManager(android.content.Context, android.os.ILIBZService);
+    method public float getArgonPressure();
   }
 
   public class Looper {

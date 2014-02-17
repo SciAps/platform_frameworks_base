@@ -46,6 +46,7 @@ static struct {
     { AID_RADIO, "simphonebook" },
     { AID_MEDIA, "common_time.clock" },
     { AID_MEDIA, "common_time.config" },
+    { AID_MEDIA, "sciaps.libzservice" }
 };
 
 void *svcmgr_handle;
