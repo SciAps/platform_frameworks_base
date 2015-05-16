@@ -3952,6 +3952,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
     @Override
     public int rotationForOrientationLw(int orientation, int lastRotation) {
+        int forceOrientation = SystemProperties.getInt("ro.sf.hwrotation", -1);
+        if(forceOrientation == 0)
+            return mPortraitRotation;
+        if(forceOrientation == 90)
+            return mLandscapeRotation;
+        if(forceOrientation == 180)
+            return mUpsideDownRotation;
+        if(forceOrientation == 270)
+            return mSeascapeRotation;
+
         if (false) {
             Slog.v(TAG, "rotationForOrientationLw(orient="
                         + orientation + ", last=" + lastRotation
