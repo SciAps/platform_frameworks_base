@@ -50,6 +50,8 @@
 #include <GLES/glext.h>
 #include <EGL/eglext.h>
 
+#include <sys/system_properties.h>
+
 #include "BootAnimation.h"
 
 #define USER_BOOTANIMATION_FILE "/data/local/bootanimation.zip"
@@ -316,7 +318,17 @@ bool BootAnimation::threadLoop()
 
 bool BootAnimation::android()
 {
-    initTexture(&mAndroid[0], mAssets, "images/android-logo-mask.png");
+    char property[PROP_VALUE_MAX + 1];
+    int len = __system_property_get("ro.product.device", property);
+    if(len > 0 && !strcmp(property, "instrument"))
+    {
+        initTexture(&mAndroid[0], mAssets, "images/android-logo-mask-reverse.png");
+    }
+    else
+    {
+        initTexture(&mAndroid[0], mAssets, "images/android-logo-mask.png");
+    }
+
     initTexture(&mAndroid[1], mAssets, "images/android-logo-shine.png");
 
     // clear screen
