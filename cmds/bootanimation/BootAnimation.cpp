@@ -31,6 +31,7 @@
 #include <utils/Errors.h>
 #include <utils/Log.h>
 #include <utils/threads.h>
+#include <utils/Timers.h>
 
 #include <ui/PixelFormat.h>
 #include <ui/Rect.h>
@@ -383,7 +384,15 @@ bool BootAnimation::android()
         if (sleepTime > 0)
             usleep(sleepTime);
 
-        checkExit();
+	nsecs_t secondsElapsed = nanoseconds_to_seconds(now - startTime);
+        if (secondsElapsed > 1)
+        {
+            requestExit();
+        }
+        else
+        {
+            checkExit();
+        }
     } while (!exitPending());
 
     glDeleteTextures(1, &mAndroid[0].name);
