@@ -260,6 +260,8 @@ status_t BootAnimation::readyToRun() {
     eglQuerySurface(display, surface, EGL_WIDTH, &w);
     eglQuerySurface(display, surface, EGL_HEIGHT, &h);
 
+    ALOGD("EGL w=%d, h=%d", w, h);
+
     if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE)
         return NO_INIT;
 
@@ -330,8 +332,6 @@ bool BootAnimation::android()
         initTexture(&mAndroid[0], mAssets, "images/android-logo-mask.png");
     }
 
-    initTexture(&mAndroid[1], mAssets, "images/android-logo-shine.png");
-
     // clear screen
     glShadeModel(GL_FLAT);
     glDisable(GL_DITHER);
@@ -345,10 +345,12 @@ bool BootAnimation::android()
 
     const GLint xc = (mWidth  - mAndroid[0].w) / 2;
     const GLint yc = (mHeight - mAndroid[0].h) / 2;
+
     const Rect updateRect(xc, yc, xc + mAndroid[0].w, yc + mAndroid[0].h);
 
-    glScissor(updateRect.left, mHeight - updateRect.bottom, updateRect.width(),
-            updateRect.height());
+    ALOGD("updateRect xc=%d, yc=%d, left=%d, bottom=%d, w=%d, h=%d", xc, yc, updateRect.left, mHeight - updateRect.bottom, updateRect.width(), updateRect.height());
+
+    glScissor(0, 0, mWidth, mHeight);
 
     // Blend state
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -358,22 +360,19 @@ bool BootAnimation::android()
     do {
         nsecs_t now = systemTime();
         double time = now - startTime;
-        float t = 4.0f * float(time / us2ns(16667)) / mAndroid[1].w;
-        GLint offset = (1 - (t - floorf(t))) * mAndroid[1].w;
-        GLint x = xc - offset;
 
         glDisable(GL_SCISSOR_TEST);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glEnable(GL_SCISSOR_TEST);
-        glDisable(GL_BLEND);
-        glBindTexture(GL_TEXTURE_2D, mAndroid[1].name);
-        glDrawTexiOES(x,                 yc, 0, mAndroid[1].w, mAndroid[1].h);
-        glDrawTexiOES(x + mAndroid[1].w, yc, 0, mAndroid[1].w, mAndroid[1].h);
+        nsecs_t nanoSecondsElapsed = now - startTime;
+        if (nanoSecondsElapsed < 2500000000)
+        {
+            glDisable(GL_BLEND);
 
-        glEnable(GL_BLEND);
-        glBindTexture(GL_TEXTURE_2D, mAndroid[0].name);
-        glDrawTexiOES(xc, yc, 0, mAndroid[0].w, mAndroid[0].h);
+            glEnable(GL_BLEND);
+            glBindTexture(GL_TEXTURE_2D, mAndroid[0].name);
+            glDrawTexiOES(xc, yc, 0, mAndroid[0].w, mAndroid[0].h);
+        }
 
         EGLBoolean res = eglSwapBuffers(mDisplay, mSurface);
         if (res == EGL_FALSE)
@@ -384,19 +383,10 @@ bool BootAnimation::android()
         if (sleepTime > 0)
             usleep(sleepTime);
 
-	nsecs_t secondsElapsed = nanoseconds_to_seconds(now - startTime);
-        if (secondsElapsed > 1)
-        {
-            requestExit();
-        }
-        else
-        {
-            checkExit();
-        }
+        checkExit();
     } while (!exitPending());
 
     glDeleteTextures(1, &mAndroid[0].name);
-    glDeleteTextures(1, &mAndroid[1].name);
     return false;
 }
 
