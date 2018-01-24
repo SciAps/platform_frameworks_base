@@ -319,6 +319,9 @@ bool BootAnimation::threadLoop()
     return r;
 }
 
+nsecs_t gTimeExitRequested = 0;
+bool gExitRequested = false;
+
 bool BootAnimation::android()
 {
     char property[PROP_VALUE_MAX + 1];
@@ -384,6 +387,15 @@ bool BootAnimation::android()
             usleep(sleepTime);
 
         checkExit();
+
+        if (gExitRequested)
+        {
+            nsecs_t nanoSecondsElapsedSinceExitRequest = now - gTimeExitRequested;
+            if (nanoSecondsElapsedSinceExitRequest > 1000000000)
+            {
+                requestExit();
+            }
+        }
     } while (!exitPending());
 
     glDeleteTextures(1, &mAndroid[0].name);
@@ -397,7 +409,11 @@ void BootAnimation::checkExit() {
     property_get(EXIT_PROP_NAME, value, "0");
     int exitnow = atoi(value);
     if (exitnow) {
-        requestExit();
+        if (!gExitRequested)
+        {
+            gTimeExitRequested = systemTime();
+            gExitRequested = true;
+        }
     }
 }
 
