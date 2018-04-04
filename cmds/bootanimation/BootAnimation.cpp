@@ -324,16 +324,7 @@ bool gExitRequested = false;
 
 bool BootAnimation::android()
 {
-    char property[PROP_VALUE_MAX + 1];
-    int len = __system_property_get("ro.product.device", property);
-    if(len > 0 && !strcmp(property, "instrument"))
-    {
-        initTexture(&mAndroid[0], mAssets, "images/android-logo-mask-reverse.png");
-    }
-    else
-    {
-        initTexture(&mAndroid[0], mAssets, "images/android-logo-mask.png");
-    }
+    initTexture(&mAndroid[0], mAssets, "images/android-logo-mask.png");
 
     // clear screen
     glShadeModel(GL_FLAT);
